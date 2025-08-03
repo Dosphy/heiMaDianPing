@@ -84,8 +84,13 @@ public class CacheClient {
 
         //2.判断是否不存在
         if(StrUtil.isBlank(json)){
-            //不存在则返回null
-            return null;
+            T data = dbFallBack.apply(id); // 从数据库查询
+            if (data == null) {
+                return null; // 数据库也没有，直接返回 null（可结合缓存空对象解决缓存穿透）
+            }
+            // 写入 Redis，并设置逻辑过期时间
+            this.setWithLogicalExpire(key, data, time, timeUnit);
+            return data; // 返回数据库数据
         }
 
         //3.redis命中数据,反序列化数据
