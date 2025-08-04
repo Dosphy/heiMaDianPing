@@ -38,7 +38,6 @@ public class LoginInterceptor implements HandlerInterceptor {
         }
 
         String token = LOGIN_USER_KEY + request.getHeader("authorization");
-        System.out.println("token:"+token);
         if(stringRedisTemplate.getExpire(token, TimeUnit.SECONDS) > 0){
             //放行
             return true;
