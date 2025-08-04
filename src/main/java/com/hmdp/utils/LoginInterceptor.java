@@ -22,6 +22,13 @@ import static com.hmdp.utils.RedisConstants.LOGIN_USER_KEY;
 
 public class LoginInterceptor implements HandlerInterceptor {
 
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+    public LoginInterceptor(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //1.判断是否拦截
@@ -30,8 +37,14 @@ public class LoginInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        //放行
-        return true;
+        String token = LOGIN_USER_KEY + request.getHeader("authorization");
+        System.out.println("token:"+token);
+        if(stringRedisTemplate.getExpire(token, TimeUnit.SECONDS) > 0){
+            //放行
+            return true;
+        }
+
+        return false;
     }
 
 //    @Override

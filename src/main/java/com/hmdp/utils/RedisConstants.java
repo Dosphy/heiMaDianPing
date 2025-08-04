@@ -23,4 +23,6 @@ public class RedisConstants {
     public static final String SHOP_LIST_KEY = "shop:list:";
 
     public static final String FOLLOWS_KEY = "follows:";
+
+    public static final String FEEDS_KEY = "feed:";
 }

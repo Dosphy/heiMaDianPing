@@ -17,18 +17,26 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //后执行这个判断用户登录的拦截器
-        registry.addInterceptor(new LoginInterceptor())
+        registry.addInterceptor(new LoginInterceptor(stringRedisTemplate))
                 .excludePathPatterns(
-                        "/shop/**",
-                        "/voucher/**",
-                        "shop-type/**",
-                        "/upload/**",
-                        "/blog/hot",
-                        "/user/code",
-                        "/user/login"
-                ).order(1);
-        //先执行这个刷新token的拦截器
+                        "/user/login",
+                        "/user/code"
+                )
+                .order(1);
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).order(0);
+//        //后执行这个判断用户登录的拦截器
+//        registry.addInterceptor(new LoginInterceptor())
+//                .addPathPatterns("/user/me")
+//                .excludePathPatterns(
+//                        "/shop/**",
+//                        "/voucher/**",
+//                        "shop-type/**",
+//                        "/upload/**",
+//                        "/blog/hot",
+//                        "/user/code",
+//                        "/user/login"
+//                ).order(1);
+//        //先执行这个刷新token的拦截器
+//        registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).order(0);
     }
 }
