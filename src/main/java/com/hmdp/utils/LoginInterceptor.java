@@ -31,8 +31,10 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("走拦截器了...");
         //1.判断是否拦截
         if(UserHolder.getUser() == null){
+            System.out.println("没找到用户...");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
         }
@@ -40,6 +42,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         String token = LOGIN_USER_KEY + request.getHeader("authorization");
         if(stringRedisTemplate.getExpire(token, TimeUnit.SECONDS) > 0){
             //放行
+            System.out.println("判断token了...");
             return true;
         }
 
