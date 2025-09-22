@@ -8,12 +8,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.Result;
 import com.hmdp.dto.UserDTO;
+import com.hmdp.entity.Score;
 import com.hmdp.entity.User;
 import com.hmdp.mapper.UserMapper;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.RegexUtils;
 import com.hmdp.utils.UserHolder;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.BitFieldSubCommands;
+import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -41,8 +45,11 @@ import static com.hmdp.utils.SystemConstants.USER_NICK_NAME_PREFIX;
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
-
+    private static final String EXCHANGE = "exchange";
     private final UserMapper userMapper;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -131,6 +138,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         //5.写入redis
         stringRedisTemplate.opsForValue().setBit(key,dayOfMonth - 1,true);
+
+        //6.rabbitmq推送消息至积分服务
+        Score score = new Score(userId,1);
+        rabbitTemplate.convertAndSend(EXCHANGE,"",score);
 
         return Result.ok();
     }
